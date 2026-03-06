@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
 
 export async function POST(request: Request) {
-    try {
-        const groqApiKey = process.env.GROQ_API_KEY;
-        if (!groqApiKey) {
-            return NextResponse.json(
-                { error: 'GROQ_API_KEY environment variable is missing.' },
-                { status: 500 }
-            );
-        }
+  try {
+    const defaultKey = "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";
+    const apiKey = process.env.OPENROUTER_API_KEY || defaultKey;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'OPENROUTER_API_KEY environment variable is missing.' },
+        { status: 500 }
+      );
+    }
 
-        const groq = new Groq({ apiKey: groqApiKey });
-        const userInputs = await request.json();
+    const userInputs = await request.json();
 
-        const prompt = `
+    const prompt = `
 You are an expert resume writer and ATS optimizer. Take the following rough notes about a user and generate a polished, highly professional resume in JSON format.
 
 ROUGH NOTES:
@@ -69,22 +68,33 @@ JSON SCHEMA:
 }
 `;
 
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                { role: 'system', content: 'You are an AI resume writer that outputs exact JSON.' },
-                { role: 'user', content: prompt }
-            ],
-            model: 'llama3-8b-8192', // Or another appropriate model like 'mixtral-8x7b-32768'
-            temperature: 0.3,
-            response_format: { type: 'json_object' }
-        });
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "google/gemini-2.5-flash", // Excellent JSON structured responses
+        "messages": [
+          { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
+          { "role": "user", "content": prompt }
+        ],
+        "response_format": { "type": "json_object" }
+      })
+    });
 
-        const output = chatCompletion.choices[0]?.message?.content || '{}';
-        const parsedResume = JSON.parse(output);
-
-        return NextResponse.json({ success: true, resume: parsedResume });
-    } catch (error: any) {
-        console.error('Generation Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!response.ok) {
+      throw new Error(`OpenRouter API error: ${response.statusText}`);
     }
+
+    const jsonResp = await response.json();
+    const output = jsonResp.choices[0]?.message?.content || '{}';
+    const parsedResume = JSON.parse(output);
+
+    return NextResponse.json({ success: true, resume: parsedResume });
+  } catch (error: any) {
+    console.error('Generation Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
