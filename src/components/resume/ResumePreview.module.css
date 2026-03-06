@@ -1,0 +1,130 @@
+.resumeDocument {
+    background: white;
+    color: #1a1a1a;
+    padding: 40px 50px;
+    width: 100%;
+    height: 100%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 16px;
+}
+
+.name {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #000;
+}
+
+.jobTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: #444;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+.contactInfo {
+    font-size: 13px;
+    color: #555;
+}
+
+.contactInfo span {
+    display: inline-block;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.regularText {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.entriesList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.entry {
+    display: flex;
+    flex-direction: column;
+}
+
+.entryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.entryTitleGroup {
+    display: flex;
+    align-items: baseline;
+}
+
+.entryRole {
+    font-weight: 600;
+    font-size: 14px;
+    color: #000;
+}
+
+.entryCompany {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.entryDates {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.bulletList {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.bulletList li {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.skillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.skillItem {
+    font-size: 13px;
+    color: #333;
+    background: #f0f0f0;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+}
