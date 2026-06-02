@@ -9,11 +9,13 @@ export async function POST(request: Request) {
     const defaultKey = "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";
     let apiKey = openrouterKey || defaultKey;
     let model = "google/gemini-2.5-flash";
+    let usingOpenAI = false;
 
     if (openaiKey && openaiKey.startsWith("sk-proj-")) {
       apiUrl = "https://api.openai.com/v1/chat/completions";
       apiKey = openaiKey;
       model = "gpt-4o-mini";
+      usingOpenAI = true;
     }
 
     if (!apiKey) {
@@ -80,24 +82,57 @@ JSON SCHEMA:
 }
 `;
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "model": model,
-        "messages": [
-          { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
-          { "role": "user", "content": prompt }
-        ],
-        "response_format": { "type": "json_object" }
-      })
-    });
+    let response;
+    try {
+      response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "model": model,
+          "messages": [
+            { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
+            { "role": "user", "content": prompt }
+          ],
+          "response_format": { "type": "json_object" }
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText} (${response.status})`);
+      }
+    } catch (err) {
+      console.warn(`Primary API call failed:`, err);
+      if (usingOpenAI) {
+        console.log("Attempting fallback to OpenRouter due to OpenAI call failure...");
+        apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+        apiKey = openrouterKey || defaultKey;
+        model = "google/gemini-2.5-flash";
+
+        response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "model": model,
+            "messages": [
+              { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
+              { "role": "user", "content": prompt }
+            ],
+            "response_format": { "type": "json_object" }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Fallback OpenRouter API error: ${response.statusText} (${response.status})`);
+        }
+      } else {
+        throw err;
+      }
     }
 
     const jsonResp = await response.json();
