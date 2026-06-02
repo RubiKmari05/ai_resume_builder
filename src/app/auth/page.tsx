@@ -32,8 +32,8 @@ export default function AuthPage() {
             if (isLogin) {
                 router.push('/dashboard');
             }
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setLoading(false);
         }

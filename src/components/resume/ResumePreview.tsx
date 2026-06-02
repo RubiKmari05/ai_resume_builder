@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './ResumePreview.module.css';
 
-interface ResumeData {
+export interface ResumeData {
     fullName: string;
     jobTitle: string;
     email: string;

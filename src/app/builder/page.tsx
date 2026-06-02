@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ArrowLeft, Wand2, Download, Save } from 'lucide-react';
 import styles from './page.module.css';
-import ResumePreview from '@/components/resume/ResumePreview';
+import ResumePreview, { ResumeData } from '@/components/resume/ResumePreview';
 
 export default function BuilderPage() {
     const router = useRouter();
@@ -24,7 +24,7 @@ export default function BuilderPage() {
         projects: ''
     });
 
-    const [generatedResume, setGeneratedResume] = useState<any>(null);
+    const [generatedResume, setGeneratedResume] = useState<ResumeData | null>(null);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));

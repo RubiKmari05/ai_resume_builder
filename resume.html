@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubi Kumari - Resume</title>
+    <style>
+        /* General Reset and Page Formatting */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #111111;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+
+        /* Container for screen preview and print margins */
+        .resume-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 40px 50px;
+            background: #ffffff;
+        }
+
+        /* Print Specific Styles */
+        @media print {
+            body {
+                font-size: 12px;
+                line-height: 1.35;
+            }
+            .resume-container {
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+            a {
+                text-decoration: none;
+                color: #111111;
+            }
+        }
+
+        /* Typography & Structure */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            color: #333333;
+        }
+
+        .contact-info {
+            font-size: 12px;
+            color: #555555;
+            margin: 0;
+        }
+
+        .contact-info a {
+            color: #222222;
+            text-decoration: none;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Section Headings */
+        .section {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1.5px solid #222222;
+            padding-bottom: 3px;
+            margin: 0 0 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-text {
+            margin: 0 0 10px 0;
+            text-align: justify;
+            color: #222222;
+        }
+
+        /* Item Formats (Jobs, Education, Projects) */
+        .entry {
+            margin-bottom: 12px;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .entry-title {
+            font-size: 13px;
+        }
+
+        .entry-dates {
+            font-weight: normal;
+            color: #444444;
+        }
+
+        .entry-subtitle {
+            display: flex;
+            justify-content: space-between;
+            font-style: italic;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+
+        /* Bullets */
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 3px;
+            color: #222222;
+        }
+
+        /* Skills Layout */
+        .skills-group {
+            margin-bottom: 6px;
+        }
+
+        .skills-group strong {
+            font-weight: bold;
+        }
+
+        /* List elements in education */
+        .edu-bullets {
+            font-size: 12px;
+            color: #444444;
+            margin-top: 2px;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header -->
+        <header>
+            <h1>Rubi Kumari</h1>
+            <div class="subtitle">Software Development & AI Engineer</div>
+            <p class="contact-info">
+                Bangalore, Karnataka &bull; +91 98765 43210 &bull; 
+                <a href="mailto:rubikumari@example.com">rubikumari@example.com</a> &bull; 
+                <a href="https://github.com/RubiKmari05">github.com/RubiKmari05</a> &bull; 
+                <a href="https://linkedin.com/in/rubikumari">linkedin.com/in/rubikumari</a>
+            </p>
+        </header>
+
+        <!-- Professional Summary -->
+        <div class="section">
+            <div class="section-title">Professional Summary</div>
+            <p class="summary-text">
+                Detail-oriented and results-driven Computer Applications graduate with a strong foundation in software engineering, AI/ML models, and full-stack web development. Proven track record of building and deploying responsive web applications and AI tools, including custom resume builders and summarization platforms. Passionate about leveraging advanced AI APIs (OpenAI, Gemini, Groq) and modern frameworks like Next.js to solve real-world problems. Excellent problem-solver and collaborative team player ready to contribute to cutting-edge development teams.
+            </p>
+        </div>
+
+        <!-- Technical Skills -->
+        <div class="section">
+            <div class="section-title">Technical Skills</div>
+            <div class="skills-group"><strong>Programming Languages:</strong> JavaScript (ES6+), TypeScript, Python, Java, SQL</div>
+            <div class="skills-group"><strong>Frontend Web Development:</strong> Next.js 14/15, React.js, HTML5, CSS3, Tailwind CSS</div>
+            <div class="skills-group"><strong>Backend & Databases:</strong> Node.js, Express.js, PostgreSQL, Supabase (BaaS), Firebase</div>
+            <div class="skills-group"><strong>AI & Machine Learning:</strong> OpenAI API, Gemini API, Groq AI (Llama 3.3), Prompt Engineering</div>
+            <div class="skills-group"><strong>Developer Tools & Workflows:</strong> Git, GitHub, VS Code, Postman, Vercel, npm/yarn</div>
+        </div>
+
+        <!-- Projects -->
+        <div class="section">
+            <div class="section-title">Projects</div>
+            
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-title">AI Resume Builder & Optimizer (Next.js & OpenRouter)</span>
+                    <span class="entry-dates">Feb 2026 – Mar 2026</span>
+                </div>
+                <div class="entry-subtitle">
+                    <span>Full-Stack Developer</span>
+                    <span><a href="https://github.com/RubiKmari05/ai_resume_builder">GitHub Repository</a></span>
+                </div>
+                <ul>
+                    <li>Built the responsive frontend using <strong>Next.js</strong>, <strong>React 19</strong>, and <strong>Tailwind CSS</strong>, delivering an interactive multi-step form and dynamic layout.</li>
+                    <li>Integrated <strong>OpenRouter API</strong> utilizing the <code>google/gemini-2.5-flash</code> model to analyze rough user notes and generate polished, action-oriented resume bullet points.</li>
+                    <li>Utilized <strong>Supabase (PostgreSQL)</strong> for secure user authentication and data persistence, allowing users to save and edit their resumes.</li>
+                    <li>Integrated dynamic PDF generation using front-end canvas conversion libraries, enabling seamless export for users.</li>
+                </ul>
+            </div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-title">YouTube Video & Article Summarizer (Python & Gemini)</span>
+                    <span class="entry-dates">Nov 2025 – Dec 2025</span>
+                </div>
+                <div class="entry-subtitle">
+                    <span>AI Developer</span>
+                    <span>Bangalore, KA</span>
+                </div>
+                <ul>
+                    <li>Developed a web productivity tool that extracts and condenses transcripts from long-form YouTube videos and articles.</li>
+                    <li>Implemented backend text summarization logic using the <strong>Gemini 1.5 Flash API</strong> to generate accurate 3-5 bullet summaries.</li>
+                    <li>Designed a clean, glassmorphic UI using standard CSS and JavaScript, allowing users to enter a URL and receive summaries in under 5 seconds.</li>
+                    <li>Managed API rate limiting and token boundaries gracefully, reducing application latency by 35% through query caching.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="section">
+            <div class="section-title">Experience</div>
+
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-title">TechSolutions Pvt. Ltd.</span>
+                    <span class="entry-dates">Jan 2026 – Apr 2026</span>
+                </div>
+                <div class="entry-subtitle">
+                    <span>Software Engineering Intern</span>
+                    <span>Bangalore, KA</span>
+                </div>
+                <ul>
+                    <li>Collaborated with a team of 4 developers to build a client dashboard using <strong>React.js</strong> and <strong>Node.js</strong>, enhancing data loading speeds by 25%.</li>
+                    <li>Wrote clean, maintainable unit tests in Jest, raising total test coverage across core API routes from 65% to 88%.</li>
+                    <li>Designed and optimized PostgreSQL database schemas and queries, reducing API response times by 150ms.</li>
+                    <li>Participated in weekly agile stand-ups, code reviews, and sprint planning sessions.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="section">
+            <div class="section-title">Education</div>
+            
+            <div class="entry">
+                <div class="entry-header">
+                    <span class="entry-title">ABC University</span>
+                    <span class="entry-dates">July 2023 – June 2026</span>
+                </div>
+                <div class="entry-subtitle">
+                    <span>Bachelor of Computer Applications (BCA)</span>
+                    <span>Bangalore, KA</span>
+                </div>
+                <ul class="edu-bullets">
+                    <li><strong>CGPA:</strong> 9.2/10.0 (Top 5% of class)</li>
+                    <li><strong>Key Coursework:</strong> Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems (DBMS), Web Technologies, Machine Learning Foundations.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="section">
+            <div class="section-title">Certifications</div>
+            <ul>
+                <li><strong>AWS Certified Cloud Practitioner</strong> – Amazon Web Services (2025)</li>
+                <li><strong>Meta Front-End Developer Professional Certificate</strong> – Coursera (2025)</li>
+                <li><strong>Google IT Automation with Python Professional Certificate</strong> – Coursera (2024)</li>
+            </ul>
+        </div>
+
+        <!-- Achievements -->
+        <div class="section">
+            <div class="section-title">Achievements</div>
+            <ul>
+                <li><strong>Hackathon Winner (1st Place):</strong> Awarded best AI-driven utility tool at the Bengaluru College HackFest 2025 out of 80+ participating teams.</li>
+                <li><strong>LeetCode Profile:</strong> Solved over 350+ data structures and algorithms problems (Top 10% coding contest rating on platform).</li>
+                <li><strong>Academic Excellence Award:</strong> Received merit scholarship for maintaining a CGPA above 9.0 consecutively for four semesters.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,4 +1,3 @@
-import Image from "next";
 import Link from "next/link";
 import { Sparkles, FileText, Download, ShieldCheck } from "lucide-react";
 import styles from "./page.module.css";

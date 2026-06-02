@@ -6,13 +6,20 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/Button';
 import { Plus, FileText, LogOut, Loader2 } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 import styles from './page.module.css';
+
+interface SavedResume {
+    id: string;
+    title: string;
+    created_at: string;
+}
 
 export default function DashboardPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
-    const [resumes, setResumes] = useState<any[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+    const [resumes, setResumes] = useState<SavedResume[]>([]);
 
     useEffect(() => {
         const checkSession = async () => {
@@ -21,13 +28,13 @@ export default function DashboardPage() {
                 router.push('/auth');
             } else {
                 setUser(session.user);
-                fetchResumes(session.user.id);
+                fetchResumes();
             }
         };
         checkSession();
     }, [router]);
 
-    const fetchResumes = async (userId: string) => {
+    const fetchResumes = async () => {
         try {
             setResumes([]);
         } catch (error) {
@@ -88,7 +95,7 @@ export default function DashboardPage() {
                     </div>
                 ) : (
                     <div className={styles.grid}>
-                        {resumes.map((resume: any) => (
+                        {resumes.map((resume) => (
                             <div key={resume.id} className={`${styles.resumeCard} glass-panel`}>
                                 <div className={styles.cardHeader}>
                                     <FileText size={24} className={styles.cardIcon} />
