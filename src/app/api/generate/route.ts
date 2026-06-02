@@ -2,11 +2,23 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
+    const openaiKey = process.env.OPENAI_API_KEY;
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
+
+    let apiUrl = "https://openrouter.ai/api/v1/chat/completions";
     const defaultKey = "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";
-    const apiKey = process.env.OPENROUTER_API_KEY || defaultKey;
+    let apiKey = openrouterKey || defaultKey;
+    let model = "google/gemini-2.5-flash";
+
+    if (openaiKey && openaiKey.startsWith("sk-proj-")) {
+      apiUrl = "https://api.openai.com/v1/chat/completions";
+      apiKey = openaiKey;
+      model = "gpt-4o-mini";
+    }
+
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OPENROUTER_API_KEY environment variable is missing.' },
+        { error: 'API key is missing.' },
         { status: 500 }
       );
     }
@@ -68,14 +80,14 @@ JSON SCHEMA:
 }
 `;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "model": "google/gemini-2.5-flash", // Excellent JSON structured responses
+        "model": model,
         "messages": [
           { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
           { "role": "user", "content": prompt }
@@ -85,7 +97,7 @@ JSON SCHEMA:
     });
 
     if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+      throw new Error(`API error: ${response.statusText}`);
     }
 
     const jsonResp = await response.json();
