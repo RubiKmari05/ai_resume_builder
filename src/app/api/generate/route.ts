@@ -1,26 +1,51 @@
 import { NextResponse } from 'next/server';
 
+interface ProviderConfig {
+  name: string;
+  apiUrl: string;
+  apiKey: string;
+  model: string;
+}
+
 export async function POST(request: Request) {
   try {
+    const groqKey = process.env.GROQ_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    let apiUrl = "https://openrouter.ai/api/v1/chat/completions";
-    const defaultKey = "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";
-    let apiKey = openrouterKey || defaultKey;
-    let model = "google/gemini-2.5-flash";
-    let usingOpenAI = false;
+    // Build provider priority list: Groq → OpenAI → OpenRouter
+    const providers: ProviderConfig[] = [];
 
-    if (openaiKey && openaiKey.startsWith("sk-proj-")) {
-      apiUrl = "https://api.openai.com/v1/chat/completions";
-      apiKey = openaiKey;
-      model = "gpt-4o-mini";
-      usingOpenAI = true;
+    if (groqKey && groqKey.startsWith("gsk_")) {
+      providers.push({
+        name: "Groq",
+        apiUrl: "https://api.groq.com/openai/v1/chat/completions",
+        apiKey: groqKey,
+        model: "llama-3.3-70b-versatile",
+      });
     }
 
-    if (!apiKey) {
+    if (openaiKey && openaiKey.startsWith("sk-proj-")) {
+      providers.push({
+        name: "OpenAI",
+        apiUrl: "https://api.openai.com/v1/chat/completions",
+        apiKey: openaiKey,
+        model: "gpt-4o-mini",
+      });
+    }
+
+    if (openrouterKey) {
+      providers.push({
+        name: "OpenRouter",
+        apiUrl: "https://openrouter.ai/api/v1/chat/completions",
+        apiKey: openrouterKey,
+        model: "google/gemini-2.5-flash",
+      });
+    }
+
+    if (providers.length === 0) {
       return NextResponse.json(
-        { error: 'API key is missing.' },
+        { error: 'No API keys configured. Please set GROQ_API_KEY, OPENAI_API_KEY, or OPENROUTER_API_KEY in .env.local' },
         { status: 500 }
       );
     }
@@ -82,66 +107,54 @@ JSON SCHEMA:
 }
 `;
 
-    let response;
-    try {
-      response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "model": model,
-          "messages": [
-            { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
-            { "role": "user", "content": prompt }
-          ],
-          "response_format": { "type": "json_object" }
-        })
-      });
+    // Try each provider in order until one succeeds
+    let lastError: Error | null = null;
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText} (${response.status})`);
-      }
-    } catch (err) {
-      console.warn(`Primary API call failed:`, err);
-      if (usingOpenAI) {
-        console.log("Attempting fallback to OpenRouter due to OpenAI call failure...");
-        apiUrl = "https://openrouter.ai/api/v1/chat/completions";
-        apiKey = openrouterKey || defaultKey;
-        model = "google/gemini-2.5-flash";
+    for (const provider of providers) {
+      try {
+        console.log(`Trying ${provider.name}...`);
 
-        response = await fetch(apiUrl, {
+        const response = await fetch(provider.apiUrl, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
+            "Authorization": `Bearer ${provider.apiKey}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            "model": model,
-            "messages": [
-              { "role": "system", "content": "You are an AI resume writer that outputs exact JSON." },
-              { "role": "user", "content": prompt }
+            model: provider.model,
+            messages: [
+              { role: "system", content: "You are an AI resume writer that outputs exact JSON." },
+              { role: "user", content: prompt },
             ],
-            "response_format": { "type": "json_object" }
-          })
+            response_format: { type: "json_object" },
+          }),
         });
 
         if (!response.ok) {
-          throw new Error(`Fallback OpenRouter API error: ${response.statusText} (${response.status})`);
+          const errorBody = await response.text();
+          throw new Error(`${provider.name} API error (${response.status}): ${errorBody}`);
         }
-      } else {
-        throw err;
+
+        const jsonResp = await response.json();
+        const output = jsonResp.choices[0]?.message?.content || '{}';
+        const parsedResume = JSON.parse(output);
+
+        console.log(`✅ Resume generated successfully via ${provider.name}`);
+        return NextResponse.json({ success: true, resume: parsedResume });
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.warn(`${provider.name} failed:`, lastError.message);
       }
     }
 
-    const jsonResp = await response.json();
-    const output = jsonResp.choices[0]?.message?.content || '{}';
-    const parsedResume = JSON.parse(output);
-
-    return NextResponse.json({ success: true, resume: parsedResume });
+    // All providers failed
+    throw lastError || new Error('All API providers failed');
   } catch (error) {
     console.error('Generation Error:', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }
+
