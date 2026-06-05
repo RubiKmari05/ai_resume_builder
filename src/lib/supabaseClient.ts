@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
+export const SUPABASE_URL = supabaseUrl;
+export const SUPABASE_ANON_KEY = supabaseAnonKey;
+export const IS_SUPABASE_VALID = isValidUrl(supabaseUrl) && !!supabaseAnonKey;
 const isValidUrl = (url: string) => {
     try {
         const parsed = new URL(url);
