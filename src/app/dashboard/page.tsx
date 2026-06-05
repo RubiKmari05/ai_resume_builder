@@ -28,20 +28,42 @@ export default function DashboardPage() {
                 router.push('/auth');
             } else {
                 setUser(session.user);
-                fetchResumes();
+                fetchResumes(session.user.id);
             }
         };
         checkSession();
     }, [router]);
 
-    const fetchResumes = async () => {
+    const fetchResumes = async (userId?: string) => {
+        let dbResumes: SavedResume[] = [];
+        let localResumes: SavedResume[] = [];
+
+        // Fetch local resumes
         try {
-            setResumes([]);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
+            localResumes = JSON.parse(localStorage.getItem('local_resumes') || '[]');
+        } catch (err) {
+            console.error('Failed to parse local storage resumes:', err);
         }
+
+        // Fetch DB resumes
+        if (userId) {
+            try {
+                const response = await fetch(`/api/resumes?userId=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    dbResumes = data.resumes || [];
+                }
+            } catch (error) {
+                console.error('Failed to fetch resumes from database:', error);
+            }
+        }
+
+        // Merge lists (avoiding duplicate IDs if any)
+        const dbIds = new Set(dbResumes.map(r => r.id));
+        const uniqueLocal = localResumes.filter(r => !dbIds.has(r.id));
+        
+        setResumes([...dbResumes, ...uniqueLocal]);
+        setLoading(false);
     };
 
     const handleSignOut = async () => {
@@ -105,7 +127,9 @@ export default function DashboardPage() {
                                     <p>Generated on {new Date(resume.created_at).toLocaleDateString()}</p>
                                 </div>
                                 <div className={styles.cardFooter}>
-                                    <Button variant="outline" size="sm" fullWidth>View / Edit</Button>
+                                    <Link href={`/builder?id=${resume.id}`} style={{ width: '100%' }}>
+                                        <Button variant="outline" size="sm" fullWidth>View / Edit</Button>
+                                    </Link>
                                 </div>
                             </div>
                         ))}

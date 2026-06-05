@@ -1,16 +1,21 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ArrowLeft, Wand2, Download, Save } from 'lucide-react';
 import styles from './page.module.css';
 import ResumePreview, { ResumeData } from '@/components/resume/ResumePreview';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function BuilderPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [resumeId, setResumeId] = useState<string | null>(null);
+
     const [formData, setFormData] = useState({
         fullName: '',
         jobTitle: '',
@@ -25,6 +30,63 @@ export default function BuilderPage() {
     });
 
     const [generatedResume, setGeneratedResume] = useState<ResumeData | null>(null);
+
+    useEffect(() => {
+        const initBuilder = async () => {
+            // Check session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setUser(session.user);
+            }
+
+            // Get ID from URL query parameters
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) {
+                setResumeId(id);
+                setLoading(true);
+                try {
+                    // Try getting from DB first
+                    let loadedFromDb = false;
+                    if (session?.user) {
+                        const response = await fetch(`/api/resumes?resumeId=${id}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.resume) {
+                                const dbResume = data.resume;
+                                if (dbResume.content?.formData && dbResume.content?.generatedResume) {
+                                    setFormData(dbResume.content.formData);
+                                    setGeneratedResume(dbResume.content.generatedResume);
+                                } else {
+                                    setGeneratedResume(dbResume.content);
+                                }
+                                loadedFromDb = true;
+                            }
+                        }
+                    }
+
+                    // Fallback to local storage if not loaded from DB
+                    if (!loadedFromDb) {
+                        const localResumes = JSON.parse(localStorage.getItem('local_resumes') || '[]');
+                        const localResume = localResumes.find((r: any) => r.id === id);
+                        if (localResume) {
+                            if (localResume.content?.formData && localResume.content?.generatedResume) {
+                                setFormData(localResume.content.formData);
+                                setGeneratedResume(localResume.content.generatedResume);
+                            } else {
+                                setGeneratedResume(localResume.content);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading resume:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        initBuilder();
+    }, []);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -70,7 +132,67 @@ export default function BuilderPage() {
     };
 
     const handleSaveToDB = async () => {
-        alert("Saving features will be activated soon!");
+        if (!generatedResume) return;
+        setSaving(true);
+
+        const resumeTitle = formData.fullName ? `${formData.fullName}'s Resume` : 'My AI Resume';
+        const resumeContent = {
+            formData,
+            generatedResume
+        };
+
+        // Try Supabase first
+        if (user) {
+            try {
+                const url = '/api/resumes';
+                const method = resumeId ? 'PUT' : 'POST';
+                const body = resumeId 
+                    ? { id: resumeId, title: resumeTitle, content: resumeContent }
+                    : { userId: user.id, title: resumeTitle, content: resumeContent };
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                });
+
+                if (response.ok) {
+                    alert('Resume saved successfully to database!');
+                    router.push('/dashboard');
+                    return;
+                } else {
+                    console.warn('Database save failed, falling back to local storage');
+                }
+            } catch (dbErr) {
+                console.error('Supabase save failed:', dbErr);
+            }
+        }
+
+        // Local Storage Fallback
+        try {
+            const localResumes = JSON.parse(localStorage.getItem('local_resumes') || '[]');
+            const activeId = resumeId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15));
+
+            const newResumeObj = {
+                id: activeId,
+                title: resumeTitle,
+                content: resumeContent,
+                created_at: new Date().toISOString()
+            };
+
+            const updatedResumes = resumeId 
+                ? localResumes.map((r: any) => r.id === resumeId ? newResumeObj : r)
+                : [newResumeObj, ...localResumes];
+
+            localStorage.setItem('local_resumes', JSON.stringify(updatedResumes));
+            alert('Resume saved successfully to local storage (Local Offline Mode)!');
+            router.push('/dashboard');
+        } catch (localErr) {
+            console.error('Local storage save failed:', localErr);
+            alert('Failed to save resume.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -84,8 +206,8 @@ export default function BuilderPage() {
                 <div className={styles.actions}>
                     {generatedResume && (
                         <>
-                            <Button variant="outline" size="sm" onClick={handleSaveToDB}>
-                                <Save size={16} /> Save
+                            <Button variant="outline" size="sm" onClick={handleSaveToDB} disabled={saving}>
+                                <Save size={16} /> {saving ? 'Saving...' : 'Save'}
                             </Button>
                             <Button variant="primary" size="sm" onClick={handleDownload}>
                                 <Download size={16} /> Export PDF
